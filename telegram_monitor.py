@@ -1,5 +1,6 @@
 
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 import sys
 import requests
 import asyncio
@@ -24,8 +25,14 @@ bot_token = None
 def init_client(config):
     global client
     proxy = None
+    
+    if config["telegram"]["string_session"]:
+        session = StringSession(config["telegram"]["string_session"])
+    else:
+        session = config["telegram"]["session_name"]
+        
     client = TelegramClient(
-        config["telegram"]["session_name"],
+        session,
         config["telegram"]["api_id"],
         config["telegram"]["api_hash"],
         proxy=proxy

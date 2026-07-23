@@ -12,6 +12,7 @@ DEFAULT_CONFIG = {
         "api_hash": os.getenv("TELEGRAM_API_HASH", "0ab360442bf470fa40c2a04fc0a36148"),
         "phone_number": os.getenv("TELEGRAM_PHONE_NUMBER", "+967780166840"),
         "session_name": os.getenv("TELEGRAM_SESSION_NAME", "tg_monitor_session_new"),
+        "string_session": os.getenv("TELEGRAM_STRING_SESSION", ""),
         "bot_token": os.getenv("TELEGRAM_BOT_TOKEN", "")
     },
     "monitoring": {
@@ -54,6 +55,7 @@ def load_config():
         merged["telegram"]["api_hash"] = os.getenv("TELEGRAM_API_HASH", DEFAULT_CONFIG["telegram"]["api_hash"])
         merged["telegram"]["phone_number"] = os.getenv("TELEGRAM_PHONE_NUMBER", DEFAULT_CONFIG["telegram"]["phone_number"])
         merged["telegram"]["session_name"] = os.getenv("TELEGRAM_SESSION_NAME", DEFAULT_CONFIG["telegram"]["session_name"])
+        merged["telegram"]["string_session"] = os.getenv("TELEGRAM_STRING_SESSION", DEFAULT_CONFIG["telegram"]["string_session"])
         merged["telegram"]["bot_token"] = os.getenv("TELEGRAM_BOT_TOKEN", DEFAULT_CONFIG["telegram"]["bot_token"])
         merged["ai"]["groq_api_key"] = os.getenv("GROQ_API_KEY", DEFAULT_CONFIG["ai"]["groq_api_key"])
         merged["ai"]["enabled"] = os.getenv("AI_ENABLED", "true" if DEFAULT_CONFIG["ai"]["enabled"] else "false").lower() == "true"
