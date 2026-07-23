@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TG Analyzer - Панель управления</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 TG Analyzer</h1>
+            <p>Панель управления Telegram монитором</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>👥 Чаты для мониторинга</h2>
+                <div class="form-group">
+                    <label>ID чата</label>
+                    <input type="number" id="newChatId" placeholder="Введите ID чата">
+                </div>
+                <button class="btn" onclick="addChat()">Добавить чат</button>
+                <div class="tag-list" id="chatList"></div>
+            </div>
+
+            <div class="card">
+                <h2>📬 Подписчики</h2>
+                <div class="form-group">
+                    <label>ID подписчика</label>
+                    <input type="number" id="newSubscriberId" placeholder="Введите ID подписчика">
+                </div>
+                <button class="btn" onclick="addSubscriber()">Добавить подписчика</button>
+                <div class="tag-list" id="subscriberList"></div>
+            </div>
+
+            <div class="card">
+                <h2>👨‍💼 Администраторы (Бот)</h2>
+                <div class="form-group">
+                    <label>ID администратора</label>
+                    <input type="number" id="newAdminId" placeholder="Введите ID администратора">
+                </div>
+                <button class="btn" onclick="addAdmin()">Добавить администратора</button>
+                <div class="tag-list" id="adminList"></div>
+            </div>
+
+            <div class="card">
+                <h2>🤖 Настройки бота</h2>
+                <div class="form-group">
+                    <label>Bot Token</label>
+                    <input type="text" id="botToken" placeholder="Введите токен бота">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 Ключевые слова</h2>
+                <div class="form-group">
+                    <label>Новое ключевое слово</label>
+                    <input type="text" id="newKeyword" placeholder="Введите ключевое слово">
+                </div>
+                <button class="btn" onclick="addKeyword()">Добавить ключевое слово</button>
+                <div class="tag-list" id="keywordList"></div>
+            </div>
+
+            <div class="card">
+                <h2>⭐ Приоритетные ключевые слова</h2>
+                <div class="form-group">
+                    <label>Новое приоритетное слово</label>
+                    <input type="text" id="newPriorityKeyword" placeholder="Введите приоритетное слово">
+                </div>
+                <button class="btn" onclick="addPriorityKeyword()">Добавить приоритетное слово</button>
+                <div class="tag-list" id="priorityKeywordList"></div>
+            </div>
+
+            <div class="card">
+                <h2>🤖 AI Распознавание (Groq)</h2>
+                <div class="form-group">
+                    <div class="toggle-container">
+                        <label class="toggle">
+                            <input type="checkbox" id="aiEnabled">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Включить AI</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Groq API Key</label>
+                    <input type="text" id="groqApiKey" placeholder="Введите ваш API ключ">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚙️ Настройки Telegram</h2>
+                <div class="form-group">
+                    <label>API ID</label>
+                    <input type="number" id="apiId">
+                </div>
+                <div class="form-group">
+                    <label>API Hash</label>
+                    <input type="text" id="apiHash">
+                </div>
+                <div class="form-group">
+                    <label>Номер телефона</label>
+                    <input type="text" id="phoneNumber">
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <button class="btn btn-success" onclick="saveConfig()" style="font-size: 1.2rem; padding: 15px 50px;">
+                💾 Сохранить настройки
+            </button>
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let config = {};
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                config = await response.json();
+                renderConfig();
+            } catch (e) {
+                console.error('Error loading config:', e);
+            }
+        }
+
+        function renderConfig() {
+            // Chats
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+            config.monitoring.target_chat_ids.forEach(id => {
+                chatList.innerHTML += createTag(id, 'removeChat');
+            });
+
+            // Subscribers
+            const subscriberList = document.getElementById('subscriberList');
+            subscriberList.innerHTML = '';
+            if (config.subscribers) {
+                config.subscribers.forEach(id => {
+                    subscriberList.innerHTML += createTag(id, 'removeSubscriber');
+                });
+            }
+
+            // Admins
+            const adminList = document.getElementById('adminList');
+            adminList.innerHTML = '';
+            if (config.admins) {
+                config.admins.forEach(id => {
+                    adminList.innerHTML += createTag(id, 'removeAdmin');
+                });
+            }
+
+            // Keywords
+            const keywordList = document.getElementById('keywordList');
+            keywordList.innerHTML = '';
+            config.filters.keywords.forEach(kw => {
+                keywordList.innerHTML += createTag(kw, 'removeKeyword');
+            });
+
+            // Priority Keywords
+            const priorityKeywordList = document.getElementById('priorityKeywordList');
+            priorityKeywordList.innerHTML = '';
+            config.filters.priority_keywords.forEach(kw => {
+                priorityKeywordList.innerHTML += createTag(kw, 'removePriorityKeyword');
+            });
+
+            // AI Settings
+            document.getElementById('aiEnabled').checked = config.ai.enabled;
+            document.getElementById('groqApiKey').value = config.ai.groq_api_key;
+
+            // Telegram Settings
+            document.getElementById('apiId').value = config.telegram.api_id;
+            document.getElementById('apiHash').value = config.telegram.api_hash;
+            document.getElementById('phoneNumber').value = config.telegram.phone_number;
+            document.getElementById('botToken').value = config.telegram.bot_token;
+        }
+
+        function createTag(text, removeFunc) {
+            return `<div class="tag">${text}<button onclick="${removeFunc}('${text}')">×</button></div>`;
+        }
+
+        function addChat() {
+            const input = document.getElementById('newChatId');
+            const id = parseInt(input.value);
+            if (id && !config.monitoring.target_chat_ids.includes(id)) {
+                config.monitoring.target_chat_ids.push(id);
+                renderConfig();
+                input.value = '';
+            }
+        }
+
+        function removeChat(id) {
+            config.monitoring.target_chat_ids = config.monitoring.target_chat_ids.filter(c => c !== parseInt(id));
+            renderConfig();
+        }
+
+        function addSubscriber() {
+            const input = document.getElementById('newSubscriberId');
+            const id = parseInt(input.value);
+            if (id && !config.subscribers.includes(id)) {
+                config.subscribers.push(id);
+                renderConfig();
+                input.value = '';
+            }
+        }
+
+        function removeSubscriber(id) {
+            config.subscribers = config.subscribers.filter(s => s !== parseInt(id));
+            renderConfig();
+        }
+
+        function addAdmin() {
+            const input = document.getElementById('newAdminId');
+            const id = parseInt(input.value);
+            if (!config.admins) config.admins = [];
+            if (id && !config.admins.includes(id)) {
+                config.admins.push(id);
+                renderConfig();
+                input.value = '';
+            }
+        }
+
+        function removeAdmin(id) {
+            config.admins = config.admins.filter(a => a !== parseInt(id));
+            renderConfig();
+        }
+
+        function addKeyword() {
+            const input = document.getElementById('newKeyword');
+            const kw = input.value.trim();
+            if (kw && !config.filters.keywords.includes(kw)) {
+                config.filters.keywords.push(kw);
+                renderConfig();
+                input.value = '';
+            }
+        }
+
+        function removeKeyword(kw) {
+            config.filters.keywords = config.filters.keywords.filter(k => k !== kw);
+            renderConfig();
+        }
+
+        function addPriorityKeyword() {
+            const input = document.getElementById('newPriorityKeyword');
+            const kw = input.value.trim();
+            if (kw && !config.filters.priority_keywords.includes(kw)) {
+                config.filters.priority_keywords.push(kw);
+                renderConfig();
+                input.value = '';
+            }
+        }
+
+        function removePriorityKeyword(kw) {
+            config.filters.priority_keywords = config.filters.priority_keywords.filter(k => k !== kw);
+            renderConfig();
+        }
+
+        async function saveConfig() {
+            // Update config from form
+            config.ai.enabled = document.getElementById('aiEnabled').checked;
+            config.ai.groq_api_key = document.getElementById('groqApiKey').value;
+            config.telegram.api_id = parseInt(document.getElementById('apiId').value);
+            config.telegram.api_hash = document.getElementById('apiHash').value;
+            config.telegram.phone_number = document.getElementById('phoneNumber').value;
+            config.telegram.bot_token = document.getElementById('botToken').value;
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showStatus('✅ Настройки сохранены успешно!', 'success');
+                }
+            } catch (e) {
+                showStatus('❌ Ошибка сохранения настроек!', 'error');
+                console.error(e);
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        // Load config on page load
+        loadConfig();
+    </script>
+</body>
+</html>
